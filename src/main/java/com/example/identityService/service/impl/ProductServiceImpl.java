@@ -6,7 +6,6 @@ import com.example.identityService.entity.Product;
 import com.example.identityService.entity.ProductImage;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
-import com.example.identityService.repository.ProductImageRepository;
 import com.example.identityService.repository.ProductRepository;
 import com.example.identityService.repository.UserRepository;
 import com.example.identityService.service.ProductService;
@@ -21,9 +20,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -33,7 +33,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     UserRepository userRepository;
     ProductRepository productRepository;
-    ProductImageRepository productImageRepository;
+    ProductImageServiceImpl productImageService;
 
     @Override
     public PageResponse<Product> getAll(int page, int size) {
@@ -90,10 +90,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product create(ProductRequest request) {
+    public Product create(ProductRequest request) throws IOException {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String sellerId = authenticated.getName();
-        List<ProductImage> hashSetImages = new ArrayList<>();
+        List<ProductImage> productImages = new ArrayList<>();
         Product product = Product.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -103,30 +103,15 @@ public class ProductServiceImpl implements ProductService {
                 .build();
         product = productRepository.save(product);
 
-        if (request.getImages() != null && request.getImages().length > 0) {
-            List<byte[]> imageList = new ArrayList<>();
-            for (String base64Image : request.getImages()) {
-                // Loại bỏ phần đầu của chuỗi base64 nếu có
-                if (base64Image.contains(",")) {
-                    base64Image = base64Image.split(",")[1];
-                }
-                imageList.add(Base64.getDecoder().decode(base64Image));
-            }
+//        ProductImage productImage = productImageService.create(request.getImages(), product);
+//        productImages.add(productImage);
 
-            boolean isFirstImage = true;
-            for (byte[] image : imageList) {
-                ProductImage productImage = productImageRepository.save(ProductImage.builder()
-                       .product(product)
-                       .image(image)
-                       .mainImage(isFirstImage)
-                       .build());
-                isFirstImage = false;
-
-                hashSetImages.add(productImage);
-            }
+        for(MultipartFile image : request.getImages()){
+            ProductImage productImage = productImageService.create(image, product);
+            productImages.add(productImage);
         }
 
-        product.setImages(hashSetImages);
+        product.setImages(productImages);
 
         return productRepository.save(product);
     }

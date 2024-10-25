@@ -51,6 +51,9 @@ public class User {
     @JsonIgnore
     List<Product> products;
 
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    List<Review> reviews;
+
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore
     List<Order> orders;

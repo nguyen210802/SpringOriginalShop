@@ -84,20 +84,43 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public Order updateDelivery(String orderId) {
+    public Order updateOrderStatus(String orderId,  String orderStatus) {
         Order order = orderRepository.findById(orderId).orElseThrow();
-        order.setDelivery(true);
+        order.setStatus(orderStatus);
 
-        String message = String.format("Don hang %s da duoc xac nhan!", orderId);
+        String message = "";
 
-        Notification notification = Notification.builder()
-                .user(order.getBuyer())
-                .message(message)
-                .read(false)
-                .build();
+        switch (orderStatus){
+            case "PreparingForShipment":
+                message = String.format("Don hang %s dang duoc nguoi ban chuan bi!", orderId);
+                break;
+            case "Shipping":
+                message = String.format("Don hang %s dang duoc giao toi ban!", orderId);
+                break;
+            case "Delivered":
+                message = String.format("Don hang %s da giao thanh cong!", orderId);
+                break;
+            case "Canceled":
+                message = String.format("Don hang %s da bi huy!", orderId);
+                break;
+            case "Returned":
+                message = String.format("Don hang %s da duoc tra lai!", orderId);
+                break;
+            case "Refunded":
+                message = String.format("Don hang %s da duoc hoan tien!", orderId);
+                break;
+        }
 
-        notificationRepository.save(notification);
-        kafkaTemplate.send("notification_confirmOrder", notification);
+//        String message = String.format("Don hang %s da duoc xac nhan!", orderId);
+//
+//        Notification notification = Notification.builder()
+//                .user(order.getBuyer())
+//                .message(message)
+//                .read(false)
+//                .build();
+//
+//        notificationRepository.save(notification);
+//        kafkaTemplate.send("notification_confirmOrder", notification);
 
         return orderRepository.save(order);
     }

@@ -9,6 +9,9 @@ import com.example.identityService.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -21,9 +24,14 @@ public class OrderController {
     OrderService orderService;
 
     @GetMapping("/getAll")
-    public ApiResponse<PageResponse<Order>> getAll(@RequestParam(defaultValue = "1")int page, @RequestParam(defaultValue = "10") int size){
+    public ApiResponse<PageResponse<Order>> getAll( @PageableDefault(
+            page = 1,
+            size = 20,
+            sort = "createdAt",
+            direction = Sort.Direction.DESC
+    ) Pageable pageable){
         return ApiResponse.<PageResponse<Order>>builder()
-               .result(orderService.getAll(page, size))
+               .result(orderService.getAllByUser(pageable.getPageNumber(), pageable.getPageSize()))
                .build();
     }
 

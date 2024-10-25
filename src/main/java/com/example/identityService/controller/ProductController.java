@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -72,8 +74,8 @@ public class ProductController {
     }
 
 
-    @PostMapping("/create")
-    public ApiResponse<Product> createProduct(@RequestBody ProductRequest request){
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Product> createProduct(@ModelAttribute ProductRequest request) throws IOException {
         ProductService productService = (ProductService) map.get("product");
         return ApiResponse.<Product>builder()
                 .result(productService.create(request))

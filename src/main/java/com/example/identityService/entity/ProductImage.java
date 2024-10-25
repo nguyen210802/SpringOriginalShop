@@ -17,10 +17,8 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(length = 1000000)
-    byte[] image;
-
-    boolean mainImage;
+    @Column(nullable = false)
+    String linkImage;
 
     @ManyToOne
     @JoinColumn(name = "product_id")

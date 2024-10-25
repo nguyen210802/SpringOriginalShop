@@ -37,9 +37,7 @@ public class Order {
     @Column(nullable = false)
     double totalAmount;
 
-    @Column(nullable = false)
-    @Builder.Default
-    boolean delivery = false;
+    String status;
 
     @Column(nullable = false)
     LocalDate createAt;

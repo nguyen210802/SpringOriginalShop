@@ -3,9 +3,11 @@ package com.example.identityService.service.impl;
 import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.OrderItemRequest;
 import com.example.identityService.entity.*;
+import com.example.identityService.enums.OrderStatus;
 import com.example.identityService.exception.AppException;
 import com.example.identityService.exception.ErrorCode;
 import com.example.identityService.repository.*;
+import com.example.identityService.service.OrderItemService;
 import com.example.identityService.service.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -29,17 +31,19 @@ import java.util.Set;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     OrderRepository orderRepository;
-    ProductRepository productRepository;
-    OrderItemRepository orderItemRepository;
     UserRepository userRepository;
     AddressRepository addressRepository;
     NotificationRepository notificationRepository;
+    OrderItemService orderItemService;
 
     @Override
     @Cacheable(value = "allOrder", key = "#page"+ '-' + "#size")
-    public PageResponse<Order> getAll(int page, int size) {
+    public PageResponse<Order> getAllByUser(int page, int size) {
+        var authenticated = SecurityContextHolder.getContext().getAuthentication();
+        String buyerId = authenticated.getName();
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        var pageData = orderRepository.findAll(pageable);
+        var pageData = orderRepository.findAllByBuyer_Id(buyerId, pageable);
         return PageResponse.<Order>builder()
                 .currentPage(page)
                 .pageSize(pageData.getSize())
@@ -81,18 +85,7 @@ public class OrderServiceImpl implements OrderService {
         double totalAmount = 0;
 
         for(OrderItemRequest request : requests){
-            Product product = productRepository.findById(request.getProductId()).orElseThrow();
-
-            OrderItem orderItem = OrderItem.builder()
-                    .order(order)
-                    .productId(request.getProductId())
-                    .productPrice(product.getPrice())
-                    .linkProduct(request.getLinkProduct())
-                    .quantity(request.getQuantity())
-                    .price(product.getPrice() * request.getQuantity())
-                    .build();
-
-            orderItemRepository.save(orderItem);
+            OrderItem orderItem = orderItemService.create(request, order);
 
             totalAmount += orderItem.getPrice();
 
@@ -101,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
-        order.setDelivery(false);
+        order.setStatus(OrderStatus.Ordered.name());
 
         Notification notification = Notification.builder()
                 .user(userRepository.findByUsername("admin"))
@@ -118,16 +111,20 @@ public class OrderServiceImpl implements OrderService {
     public String deleteOrder(String orderId) {
         var authenticated = SecurityContextHolder.getContext().getAuthentication();
         String buyerId = authenticated.getName();
-        log.info("Authenticated: {}", authenticated.getAuthorities());
+
         Order order = orderRepository.findById(orderId).orElseThrow();
-        boolean hasRoleUser = authenticated.getAuthorities().stream()
+        boolean hasRoleAdmin = authenticated.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-        if(hasRoleUser || order.getBuyer().getId().equals(buyerId)){
-            orderRepository.deleteById(orderId);
-            log.info("co quyen");
+        if(hasRoleAdmin){
+            order.setStatus(OrderStatus.Canceled.name());
+        }
+        else if(buyerId.equals(order.getBuyer().getId()) &&
+                (order.getStatus().equals(OrderStatus.Ordered.name()) || order.getStatus().equals(OrderStatus.Preparing.name())))
+        {
+            order.setStatus(OrderStatus.Canceled.name());
         }
         else
             throw new AppException(ErrorCode.UNAUTHORIZED);
-        return "Delete successfully";
+        return "Order Cancellation Successful";
     }
 }

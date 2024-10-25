@@ -5,6 +5,7 @@ import com.example.identityService.dto.PageResponse;
 import com.example.identityService.dto.request.UserRequest;
 import com.example.identityService.dto.response.UserResponse;
 import com.example.identityService.entity.Order;
+import com.example.identityService.enums.OrderStatus;
 import com.example.identityService.service.AdminService;
 import com.example.identityService.service.OrderService;
 import lombok.AccessLevel;
@@ -56,12 +57,51 @@ public class AdminController {
                 .build();
     }
 
-    @PutMapping("order/delivery")
-    public ApiResponse<Order> deliveryOrder(@RequestParam String orderId){
+    @PutMapping("order/preparing")
+    public ApiResponse<Order> preparing(@RequestParam String orderId){
         AdminService adminService = (AdminService) this.map.get("admin");
         return ApiResponse.<Order>builder()
-               .result(adminService.updateDelivery(orderId))
+               .result(adminService.updateOrderStatus(orderId, OrderStatus.Preparing.name()))
                .build();
+    }
+    @PutMapping("order/shipping")
+    public ApiResponse<Order> shipping(@RequestParam String orderId){
+        AdminService adminService = (AdminService) this.map.get("admin");
+        return ApiResponse.<Order>builder()
+                .result(adminService.updateOrderStatus(orderId, OrderStatus.Shipping.name()))
+                .build();
+    }
+
+    @PutMapping("order/delivered")
+    public ApiResponse<Order> delivered(@RequestParam String orderId){
+        AdminService adminService = (AdminService) this.map.get("admin");
+        return ApiResponse.<Order>builder()
+                .result(adminService.updateOrderStatus(orderId, OrderStatus.Delivered.name()))
+                .build();
+    }
+
+    @PutMapping("order/canceled")
+    public ApiResponse<Order> canceled(@RequestParam String orderId){
+        AdminService adminService = (AdminService) this.map.get("admin");
+        return ApiResponse.<Order>builder()
+                .result(adminService.updateOrderStatus(orderId, OrderStatus.Canceled.name()))
+                .build();
+    }
+
+    @PutMapping("order/returned")
+    public ApiResponse<Order> returned(@RequestParam String orderId){
+        AdminService adminService = (AdminService) this.map.get("admin");
+        return ApiResponse.<Order>builder()
+                .result(adminService.updateOrderStatus(orderId, OrderStatus.Returned.name()))
+                .build();
+    }
+
+    @PutMapping("order/refunded")
+    public ApiResponse<Order> refunded(@RequestParam String orderId){
+        AdminService adminService = (AdminService) this.map.get("admin");
+        return ApiResponse.<Order>builder()
+                .result(adminService.updateOrderStatus(orderId, OrderStatus.Refunded.name()))
+                .build();
     }
 
     @DeleteMapping("/product/delete/{productId}")

@@ -33,4 +33,7 @@ public class OrderItem {
 
     @Column(nullable = false)
     double price;
+
+    @Column(nullable = false)
+    String status;
 }

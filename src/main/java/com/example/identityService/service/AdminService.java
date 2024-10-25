@@ -14,5 +14,5 @@ public interface AdminService{
 
     String deleteProductById(String productId);
 
-    Order updateDelivery(String orderId);
+    Order updateOrderStatus(String orderId, String orderStatus);
 }

@@ -27,7 +27,6 @@ public class Product {
     String name;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-//    fetch = FetchType.LAZY
     List<ProductImage> images;
 
     String description;
@@ -36,12 +35,17 @@ public class Product {
     @Column(nullable = false)
     double price;
 
+    @Column(nullable = false)
+    int remainingQuantity;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    List<Comment> comments;
+    List<Review> reviews;
 
     @Column(nullable = false)
     LocalDate createAt;
     LocalDate updateAt;
+
+    boolean deleted;
 
     @PrePersist
     private void setCreateAt(){

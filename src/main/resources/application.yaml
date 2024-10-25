@@ -55,4 +55,4 @@ jwt:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: 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
+    brevo-apikey: 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

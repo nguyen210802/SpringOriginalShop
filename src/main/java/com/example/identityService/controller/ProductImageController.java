@@ -1,7 +1,6 @@
 package com.example.identityService.controller;
 
 import com.example.identityService.dto.ApiResponse;
-import com.example.identityService.dto.response.ProductImageResponse;
 import com.example.identityService.entity.ProductImage;
 import com.example.identityService.service.ProductImageService;
 import lombok.AccessLevel;
@@ -24,13 +23,6 @@ public class ProductImageController {
     public ApiResponse<List<ProductImage>> getByProduct(@PathVariable("productId") String productId){
         return ApiResponse.<List<ProductImage>>builder()
                 .result(productImageServiceImpl.getAllByproductId(productId))
-                .build();
-    }
-
-    @GetMapping("/getMainImage/{productId}")
-    public ApiResponse<ProductImage> getMainImage(@PathVariable String productId){
-        return ApiResponse.<ProductImage>builder()
-                .result(productImageServiceImpl.getMainImage(productId))
                 .build();
     }
 

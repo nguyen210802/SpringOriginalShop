@@ -12,7 +12,4 @@ import java.util.List;
 public interface ProductImageRepository extends JpaRepository<ProductImage, String> {
     @EntityGraph(attributePaths = {"image"})
     List<ProductImage> findAllByProduct_Id(String productId);
-
-    @Query("SELECT pi FROM ProductImage pi WHERE pi.product.id = :productId AND pi.mainImage = true")
-    ProductImage findMainImageByProduct_Id(String productId);
 }

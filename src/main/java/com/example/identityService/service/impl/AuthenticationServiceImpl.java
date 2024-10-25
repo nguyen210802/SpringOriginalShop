@@ -129,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .issuer("nguyen.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.MINUTES).toEpochMilli()
+                        Instant.now().plus(15, ChronoUnit.MINUTES).toEpochMilli()
                 ))
                 .claim("scope", user.getRole())
                 .build();

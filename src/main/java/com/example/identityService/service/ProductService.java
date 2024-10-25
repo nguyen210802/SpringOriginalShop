@@ -5,6 +5,7 @@ import com.example.identityService.dto.request.ProductRequest;
 import com.example.identityService.entity.Product;
 import org.springframework.data.domain.Page;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductService {
@@ -12,7 +13,7 @@ public interface ProductService {
     Product getProductById(String id);
     PageResponse<Product> getAllMyProduct(int page, int size);
     PageResponse<Product> getAllByName(int page, int size, String name);
-    Product create(ProductRequest request);
+    Product create(ProductRequest request) throws IOException;
     Product update(String id, Product product);
     String delete(String id);
 }

@@ -39,6 +39,7 @@ public class AuthenticationController {
 
     @PostMapping("/loginWithGoogle")
     public ApiResponse<AuthenticationResponse> authenticateWithGoogle(@AuthenticationPrincipal OAuth2User principal){
+        log.info("authenticateWithGoogle: {}", principal);
         return ApiResponse.<AuthenticationResponse>builder()
                .result(map.get("auth").authenticateWithGoogle(principal))
                .build();
